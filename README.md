@@ -20,7 +20,7 @@ Zed has no equivalent of VS Code's [cph](https://github.com/agrawal-d/cph) or Ne
 ## Install
 
 ```bash
-git clone https://github.com/<you>/zed-cp && cd zed-cp
+git clone https://github.com/zainmarshall/zed-cp && cd zed-cp
 ./install.sh                  # prompts for your problem folder (default ~/cp)
 ./install.sh --root ~/cp      # or set it non-interactively
 ```
