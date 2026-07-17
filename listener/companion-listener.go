@@ -78,10 +78,22 @@ func env(k, def string) string {
 	return def
 }
 
-func root() string { return env("ZED_CP_ROOT", filepath.Join(home(), "cp")) }
+// expandTilde turns a leading ~ into the home dir so we never create a literal
+// "~" directory (Go/shell do not expand tilde in values).
+func expandTilde(p string) string {
+	if p == "~" {
+		return home()
+	}
+	if strings.HasPrefix(p, "~/") {
+		return filepath.Join(home(), p[2:])
+	}
+	return p
+}
+
+func root() string { return expandTilde(env("ZED_CP_ROOT", filepath.Join(home(), "cp"))) }
 
 func templateDir() string {
-	return env("ZED_CP_TEMPLATE_DIR", filepath.Join(home(), ".config", "zed-cp", "templates"))
+	return expandTilde(env("ZED_CP_TEMPLATE_DIR", filepath.Join(home(), ".config", "zed-cp", "templates")))
 }
 
 func ext() string { return env("ZED_CP_EXT", "cpp") }
