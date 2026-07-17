@@ -4,3 +4,6 @@ listener/cp-listener
 cp-listener
 *.o
 .DS_Store
+
+# private Claude context, not shipped
+CLAUDE.md

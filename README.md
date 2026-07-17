@@ -21,7 +21,8 @@ Zed has no equivalent of VS Code's [cph](https://github.com/agrawal-d/cph) or Ne
 
 ```bash
 git clone https://github.com/<you>/zed-cp && cd zed-cp
-./install.sh --root ~/cp      # --root sets your problem folder (default ~/cp)
+./install.sh                  # prompts for your problem folder (default ~/cp)
+./install.sh --root ~/cp      # or set it non-interactively
 ```
 
 Then restart Zed and install Competitive Companion. That's it.
@@ -73,10 +74,11 @@ Default the listener to multitest templates by adding `ZED_CP_TEMPLATE=cpt` to t
 ## Uninstall
 
 ```bash
-./uninstall.sh
+./uninstall.sh                 # removes service, files, and cp: entries from Zed config
+./uninstall.sh --keep-config   # keep the Zed tasks/keymap/snippets entries
 ```
 
-Removes the service and `~/.config/zed-cp`. Leaves your problem folder and the `cp:` entries in your Zed config (remove those by hand if you want).
+Removes the service, `~/.config/zed-cp`, and the `cp:` tasks/keybinds/snippets it added to your Zed config. Your problem folder is never touched. (Config files with comments/JSON5 are skipped with a note; edit those by hand.)
 
 ## How it works
 

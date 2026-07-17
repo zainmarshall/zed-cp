@@ -15,12 +15,23 @@ TPL_DIR="$CONFIG_DIR/templates"
 EXEC="$CONFIG_DIR/cp-listener"
 
 ROOT="${ZED_CP_ROOT:-$HOME/cp}"
+ROOT_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --root) ROOT="$2"; shift 2 ;;
+    --root) ROOT="$2"; ROOT_SET=1; shift 2 ;;
+    -h|--help) echo "usage: ./install.sh [--root DIR]"; exit 0 ;;
     *) echo "unknown arg: $1"; exit 1 ;;
   esac
 done
+
+# Prompt for the problem folder if not given and running interactively.
+if [ "$ROOT_SET" = "0" ] && [ -t 0 ]; then
+  printf 'Problem folder [%s]: ' "$ROOT"
+  read -r reply
+  [ -n "$reply" ] && ROOT="$reply"
+fi
+# expand leading ~
+case "$ROOT" in "~"/*) ROOT="$HOME/${ROOT#~/}" ;; "~") ROOT="$HOME" ;; esac
 
 say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$*"; }
