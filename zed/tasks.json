@@ -1,0 +1,37 @@
+[
+  {
+    "label": "cp: judge",
+    "command": "bash __BIN__/judge.sh \"$ZED_FILE\"",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "reveal_target": "dock"
+  },
+  {
+    "label": "cp: run (stdin)",
+    "command": "${ZED_CP_COMPILER:-g++} -std=${ZED_CP_STD:-c++17} -O2 -Wall \"$ZED_FILE\" -o /tmp/zed-cp-run && /tmp/zed-cp-run",
+    "use_new_terminal": false,
+    "reveal": "always",
+    "reveal_target": "dock"
+  },
+  {
+    "label": "cp: add test",
+    "command": "bash __BIN__/addtest.sh \"$ZED_FILE\"",
+    "reveal": "always",
+    "reveal_target": "dock"
+  },
+  {
+    "label": "cp: new problem",
+    "command": "bash __BIN__/newprob.sh \"$ZED_DIRNAME\"",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "reveal_target": "dock"
+  },
+  {
+    "label": "cp: toggle multitest",
+    "command": "bash __BIN__/toggle-multitest.sh \"$ZED_FILE\"",
+    "reveal": "always",
+    "reveal_target": "dock"
+  }
+]

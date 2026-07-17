@@ -1,0 +1,13 @@
+[Unit]
+Description=zed-cp Competitive Companion listener
+After=graphical-session.target
+
+[Service]
+ExecStart=__EXEC__
+Environment=ZED_CP_ROOT=__ROOT__
+Environment=ZED_CP_TEMPLATE_DIR=__TEMPLATE_DIR__
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

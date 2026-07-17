@@ -1,0 +1,12 @@
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-alt-shift-cmd-j": ["task::Spawn", { "task_name": "cp: judge" }],
+      "ctrl-alt-shift-cmd-r": ["task::Spawn", { "task_name": "cp: run (stdin)" }],
+      "ctrl-alt-shift-cmd-m": ["task::Spawn", { "task_name": "cp: add test" }],
+      "ctrl-alt-shift-cmd-n": ["task::Spawn", { "task_name": "cp: new problem" }],
+      "ctrl-alt-shift-cmd-i": ["task::Spawn", { "task_name": "cp: toggle multitest" }]
+    }
+  }
+]

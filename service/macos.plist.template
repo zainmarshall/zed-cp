@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.zed-cp.listener</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__EXEC__</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ZED_CP_ROOT</key>
+    <string>__ROOT__</string>
+    <key>ZED_CP_TEMPLATE_DIR</key>
+    <string>__TEMPLATE_DIR__</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>/tmp/zed-cp-listener.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/zed-cp-listener.err</string>
+</dict>
+</plist>

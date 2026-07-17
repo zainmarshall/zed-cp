@@ -1,0 +1,6 @@
+# built listener binary
+bin/cp-listener
+listener/cp-listener
+cp-listener
+*.o
+.DS_Store
