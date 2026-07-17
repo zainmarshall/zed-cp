@@ -9,7 +9,7 @@
   },
   {
     "label": "cp: run (stdin)",
-    "command": "${ZED_CP_COMPILER:-g++} -std=${ZED_CP_STD:-c++17} -O2 -Wall \"$ZED_FILE\" -o /tmp/zed-cp-run && /tmp/zed-cp-run",
+    "command": "bash __BIN__/run.sh \"$ZED_FILE\"",
     "use_new_terminal": false,
     "reveal": "always",
     "reveal_target": "dock"

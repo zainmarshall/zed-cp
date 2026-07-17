@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Compile a C++ source and run it against ALL its tests.
+# Compile (if the language needs it) and run a source against ALL its tests.
 # Tests live at <dir>/tests/<basename>/N.in  (+ optional N.out).
-# Usage: judge.sh <source.cpp>
+# Works for any language via ZED_CP_COMPILE / ZED_CP_RUN templates (see lib.sh).
+# Usage: judge.sh <source>
 set -u
 DIR0="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib.sh
@@ -13,10 +14,12 @@ BASE="$(basename "$SRC")"; BASE="${BASE%.*}"
 TDIR="$DIR/tests/$BASE"
 BIN="$(mktemp)"
 
-# shellcheck disable=SC2086
-if ! "$ZED_CP_COMPILER" -std="$ZED_CP_STD" $ZED_CP_FLAGS "$SRC" -o "$BIN"; then
-  echo "compile failed"; exit 1
+if [ -n "$ZED_CP_COMPILE" ]; then
+  if ! eval "$(cp_subst "$ZED_CP_COMPILE" "$SRC" "$BIN")"; then
+    echo "compile failed"; rm -f "$BIN"; exit 1
+  fi
 fi
+RUNCMD="$(cp_subst "$ZED_CP_RUN" "$SRC" "$BIN")"
 
 shopt -s nullglob
 tests=($(ls "$TDIR"/*.in 2>/dev/null | sort -V))
@@ -30,7 +33,7 @@ pass=0; fail=0
 for in in "${tests[@]}"; do
   n=$(basename "$in" .in)
   exp="$TDIR/$n.out"
-  got=$("$BIN" < "$in")
+  got=$(eval "$RUNCMD" < "$in")
   if [ -f "$exp" ] && diff -q <(printf '%s' "$got" | norm) <(norm < "$exp") >/dev/null; then
     echo "test $n: PASS"; pass=$((pass+1))
   else

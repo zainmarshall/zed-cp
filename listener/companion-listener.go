@@ -84,10 +84,13 @@ func templateDir() string {
 	return env("ZED_CP_TEMPLATE_DIR", filepath.Join(home(), ".config", "zed-cp", "templates"))
 }
 
+func ext() string { return env("ZED_CP_EXT", "cpp") }
+
 func templatePath() string {
-	name := "template.cpp"
-	if os.Getenv("ZED_CP_TEMPLATE") == "cpt" {
-		name = "template-multi.cpp"
+	e := ext()
+	name := "template." + e
+	if env("ZED_CP_TEMPLATE", "cp") == "cpt" {
+		name = "template-multi." + e
 	}
 	return filepath.Join(templateDir(), name)
 }
@@ -171,12 +174,9 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		_ = os.WriteFile(filepath.Join(tdir, n+".in"), []byte(t.Input), 0o644)
 		_ = os.WriteFile(filepath.Join(tdir, n+".out"), []byte(t.Output), 0o644)
 	}
-	sol := filepath.Join(dir, name+".cpp")
+	sol := filepath.Join(dir, name+"."+ext())
 	if _, err := os.Stat(sol); err != nil {
-		tpl, e := os.ReadFile(templatePath())
-		if e != nil {
-			tpl = []byte("#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    \n}\n")
-		}
+		tpl, _ := os.ReadFile(templatePath()) // empty file if no template
 		_ = os.WriteFile(sol, tpl, 0o644)
 	}
 	fmt.Printf("[%d tests] %s\n", len(p.Tests), sol)

@@ -10,6 +10,7 @@ Zed has no equivalent of VS Code's [cph](https://github.com/agrawal-d/cph) or Ne
 - **Judge**: one keybind compiles the open file and diffs its output against every sample test (token-wise, whitespace-tolerant).
 - **New problem / add test**: scaffold files without leaving the editor.
 - **Snippets**: `cp`, `cpt` (multitest), `usaco` templates. Toggle a file between single/multitest with a keybind.
+- **Any language**: C++, C, Python, Java out of the box, or set your own compile/run commands. Everything (language, template, compile command, folder, hotkeys) is configurable at install or later.
 
 ## Requirements
 
@@ -21,9 +22,20 @@ Zed has no equivalent of VS Code's [cph](https://github.com/agrawal-d/cph) or Ne
 
 ```bash
 git clone https://github.com/zainmarshall/zed-cp && cd zed-cp
-./install.sh                  # prompts for your problem folder (default ~/cp)
-./install.sh --root ~/cp      # or set it non-interactively
+./install.sh                  # guided: language, folder, compile/run, hotkeys
 ```
+
+The installer walks you through language, problem folder, compile/run commands,
+and hotkeys (Enter accepts each default). Non-interactive:
+
+```bash
+./install.sh --yes --lang cpp --root ~/cp
+./install.sh --yes --lang python --prefix cmd-alt
+./install.sh --lang java --compile "javac -d {dir} {src}" --run "java -cp {dir} Main"
+```
+
+Flags: `--lang cpp|c|python|java`, `--root DIR`, `--compile CMD`, `--run CMD`
+(placeholders `{src} {bin} {dir} {base}`), `--prefix MODS`, `--yes`.
 
 Then restart Zed and install Competitive Companion. That's it.
 
@@ -50,17 +62,23 @@ Layout on disk:
 
 ## Config
 
-`~/.config/zed-cp/config`:
+Re-run `./install.sh` any time to reconfigure, or edit `~/.config/zed-cp/config`:
 
 ```sh
-ZED_CP_ROOT="$HOME/cp"          # problem folder
-ZED_CP_COMPILER="g++"           # auto-detected if unset
-ZED_CP_STD="c++17"
-ZED_CP_FLAGS="-O2 -Wall"
-ZED_CLI="/path/to/zed"          # auto-detected if unset
+ZED_CP_ROOT="$HOME/cp"                       # problem folder
+ZED_CP_LANG="cpp"                            # cpp | c | python | java
+ZED_CP_EXT="cpp"                             # source file extension
+ZED_CP_COMPILE="g++ -std=c++17 -O2 -Wall {src} -o {bin}"  # "" for interpreted
+ZED_CP_RUN="{bin}"                           # e.g. "python3 {src}"
+ZED_CP_TEMPLATE_DIR="$HOME/.config/zed-cp/templates"
+ZED_CP_KEYS_PREFIX="ctrl-alt-shift-cmd"      # hotkey modifier prefix
+ZED_CP_KEY_JUDGE="j"                          # + _RUN _ADDTEST _NEWPROB _TOGGLE
+# ZED_CP_TEMPLATE="cpt"                       # stamp multitest by default
+# ZED_CLI="/path/to/zed"                      # auto-detected if unset
 ```
 
-Restart the listener after editing:
+Command templates use `{src} {bin} {dir} {base}`. Scripts read the config live;
+restart the listener after changing root/template/language:
 
 ```bash
 # macOS
@@ -69,7 +87,9 @@ launchctl kickstart -k gui/$(id -u)/com.zed-cp.listener
 systemctl --user restart zed-cp-listener
 ```
 
-Default the listener to multitest templates by adding `ZED_CP_TEMPLATE=cpt` to the service environment.
+Edit your template at `~/.config/zed-cp/templates/template.<ext>` (and
+`template-multi.<ext>` for the multitest variant). Changing hotkeys means editing
+`~/.config/zed/keymap.json` or re-running the installer.
 
 ## Uninstall
 

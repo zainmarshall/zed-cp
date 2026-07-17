@@ -2,7 +2,15 @@
 # Toggle the current file's main() between single-test and multitest.
 # Usage: toggle-multitest.sh <source.cpp>
 set -u
+DIR0="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib.sh
+. "$DIR0/lib.sh"
 SRC="${1:?need source file}"
+
+case "$ZED_CP_LANG" in
+  cpp|c) : ;;
+  *) echo "toggle-multitest only supports C/C++ (solve()/main() form)"; exit 0 ;;
+esac
 
 python3 - "$SRC" <<'PY'
 import sys

@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
-# Shared config for zed-cp scripts. Sourced by judge/addtest/newprob/toggle.
+# Shared config for zed-cp scripts. Sourced by judge/run/addtest/newprob/toggle.
 # Resolves settings from (in order): env vars, config file, sane defaults.
+#
+# Command templates use placeholders: {src} {bin} {dir} {base}
+#   {src}  path to the source file
+#   {bin}  path to a temp compiled binary (compiled languages)
+#   {dir}  directory of the source file
+#   {base} source file name without extension
 
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zed-cp"
 CONFIG_FILE="$CONFIG_DIR/config"
 # shellcheck disable=SC1090
 [ -f "$CONFIG_FILE" ] && . "$CONFIG_FILE"
 
-# Root folder where problems live.
 ZED_CP_ROOT="${ZED_CP_ROOT:-$HOME/cp}"
+ZED_CP_LANG="${ZED_CP_LANG:-cpp}"
+ZED_CP_EXT="${ZED_CP_EXT:-cpp}"
+ZED_CP_TEMPLATE_DIR="${ZED_CP_TEMPLATE_DIR:-$CONFIG_DIR/templates}"
 
-# C++ compiler: honor env/config, else first available. Prefer real GCC
-# (versioned) over a plain "g++" that may be a clang alias (macOS), then clang++.
+# C++ compiler for the default compile command. Prefer real GCC (versioned) over
+# a plain "g++" that may be a clang alias (macOS), then clang++.
 if [ -z "${ZED_CP_COMPILER:-}" ]; then
   for c in g++-15 g++-14 g++-13 g++-12 g++-11 g++ clang++; do
     if command -v "$c" >/dev/null 2>&1; then ZED_CP_COMPILER="$c"; break; fi
@@ -21,10 +29,27 @@ ZED_CP_COMPILER="${ZED_CP_COMPILER:-g++}"
 ZED_CP_STD="${ZED_CP_STD:-c++17}"
 ZED_CP_FLAGS="${ZED_CP_FLAGS:--O2 -Wall}"
 
-# Directory holding template.cpp / template-multi.cpp (this repo's templates/).
-ZED_CP_TEMPLATE_DIR="${ZED_CP_TEMPLATE_DIR:-$CONFIG_DIR/templates}"
+# Compile / run command templates. Default to C++. Interpreted languages set
+# ZED_CP_COMPILE="" and a ZED_CP_RUN like "python3 {src}".
+# NOTE: assign with explicit if, not ${VAR:-default} -- the {bin}/{src}
+# placeholders contain "}" which would prematurely close the expansion.
+if [ -z "${ZED_CP_COMPILE+set}" ]; then
+  ZED_CP_COMPILE="$ZED_CP_COMPILER -std=$ZED_CP_STD $ZED_CP_FLAGS {src} -o {bin}"
+fi
+if [ -z "${ZED_CP_RUN+set}" ]; then
+  ZED_CP_RUN="{bin}"
+fi
 
-# Locate the Zed CLI across platforms. Empty if not found (scripts skip opening).
+# Substitute placeholders in a command template. Args: template src bin
+cp_subst() {
+  printf '%s' "$1" | sed \
+    -e "s|{src}|$2|g" \
+    -e "s|{bin}|$3|g" \
+    -e "s|{dir}|$(dirname "$2")|g" \
+    -e "s|{base}|$(basename "${2%.*}")|g"
+}
+
+# Locate the Zed CLI across platforms. Empty if not found.
 zed_cli() {
   if [ -n "${ZED_CLI:-}" ] && [ -x "$ZED_CLI" ]; then echo "$ZED_CLI"; return; fi
   for cand in zed zeditor; do
