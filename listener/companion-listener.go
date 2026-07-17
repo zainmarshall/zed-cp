@@ -128,13 +128,23 @@ func zedCLI() string {
 	return ""
 }
 
-func openInZed(files []string) {
+// openProblem opens files in Zed per ZED_CP_OPEN: "none" | "source" | "all".
+// Default "source" opens just the solution file (no test-file tab spam).
+func openProblem(sol, in, out string) {
+	mode := env("ZED_CP_OPEN", "source")
+	if mode == "none" {
+		return
+	}
 	cli := zedCLI()
 	if cli == "" {
 		return
 	}
-	_ = exec.Command(cli, files...).Start()
-	_ = exec.Command(cli, files[0]).Start() // focus source
+	if mode == "all" {
+		_ = exec.Command(cli, sol, in, out).Start()
+		_ = exec.Command(cli, sol).Start() // focus source
+		return
+	}
+	_ = exec.Command(cli, sol).Start() // "source"
 }
 
 type payload struct {
@@ -192,7 +202,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		_ = os.WriteFile(sol, tpl, 0o644)
 	}
 	fmt.Printf("[%d tests] %s\n", len(p.Tests), sol)
-	openInZed([]string{sol, filepath.Join(tdir, "1.in"), filepath.Join(tdir, "1.out")})
+	openProblem(sol, filepath.Join(tdir, "1.in"), filepath.Join(tdir, "1.out"))
 	fmt.Fprint(w, "ok")
 }
 

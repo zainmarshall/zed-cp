@@ -108,7 +108,11 @@ ok "built $EXEC"
 # ---- install files ----
 step "Installing scripts + templates ($CONFIG_DIR)"
 cp "$REPO"/bin/*.sh "$BIN_DIR/"; chmod +x "$BIN_DIR"/*.sh
-cp "$REPO"/templates/*.* "$TPL_DIR/" 2>/dev/null || true
+# templates: copy only if missing so your customized template survives reinstall
+for t in "$REPO"/templates/*.*; do
+  dst="$TPL_DIR/$(basename "$t")"
+  [ -f "$dst" ] || cp "$t" "$dst"
+done
 cat > "$CONFIG_DIR/config" <<EOF
 # zed-cp config. Edit, then restart the listener:
 #   macOS:  launchctl kickstart -k gui/\$(id -u)/com.zed-cp.listener
@@ -119,6 +123,8 @@ ZED_CP_EXT="$EXT"
 ZED_CP_COMPILE="$COMPILE"
 ZED_CP_RUN="$RUN"
 ZED_CP_TEMPLATE_DIR="$TPL_DIR"
+ZED_CP_OPEN="source"   # what the listener opens on parse: none | source | all
+ZED_CP_TEMPLATE="cp"   # which template to stamp: cp (single) | cpt (multitest)
 ZED_CP_KEYS_PREFIX="$PREFIX"
 ZED_CP_KEY_JUDGE="$KJ"
 ZED_CP_KEY_RUN="$KR"
