@@ -173,17 +173,20 @@ if [ "$OS" = "Darwin" ]; then
   say "Installing launchd service"
   PLIST="$HOME/Library/LaunchAgents/com.zed-cp.listener.plist"
   mkdir -p "$HOME/Library/LaunchAgents"
-  sed -e "s|__EXEC__|$EXEC|g" -e "s|__ROOT__|$ROOT|g" -e "s|__TEMPLATE_DIR__|$TPL_DIR|g" \
-    "$REPO/service/macos.plist.template" > "$PLIST"
-  launchctl unload "$PLIST" 2>/dev/null || true
-  launchctl load "$PLIST"
+  sed -e "s|__EXEC__|$EXEC|g" "$REPO/service/macos.plist.template" > "$PLIST"
+  UID_N="$(id -u)"
+  # modern launchctl (bootstrap/bootout); fall back to load on old macOS
+  launchctl bootout "gui/$UID_N/com.zed-cp.listener" 2>/dev/null || true
+  if ! launchctl bootstrap "gui/$UID_N" "$PLIST" 2>/dev/null; then
+    launchctl unload "$PLIST" 2>/dev/null || true
+    launchctl load "$PLIST"
+  fi
   say "listener loaded (launchd)"
 elif [ "$OS" = "Linux" ]; then
   say "Installing systemd user service"
   UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
   mkdir -p "$UNIT_DIR"
-  sed -e "s|__EXEC__|$EXEC|g" -e "s|__ROOT__|$ROOT|g" -e "s|__TEMPLATE_DIR__|$TPL_DIR|g" \
-    "$REPO/service/linux.service.template" > "$UNIT_DIR/zed-cp-listener.service"
+  sed -e "s|__EXEC__|$EXEC|g" "$REPO/service/linux.service.template" > "$UNIT_DIR/zed-cp-listener.service"
   systemctl --user daemon-reload
   systemctl --user enable --now zed-cp-listener.service
   say "listener enabled (systemd --user)"

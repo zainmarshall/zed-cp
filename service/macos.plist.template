@@ -8,13 +8,6 @@
   <array>
     <string>__EXEC__</string>
   </array>
-  <key>EnvironmentVariables</key>
-  <dict>
-    <key>ZED_CP_ROOT</key>
-    <string>__ROOT__</string>
-    <key>ZED_CP_TEMPLATE_DIR</key>
-    <string>__TEMPLATE_DIR__</string>
-  </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>

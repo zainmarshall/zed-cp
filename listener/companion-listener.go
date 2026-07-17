@@ -34,8 +34,45 @@ func home() string {
 	return h
 }
 
+// configFile parses ~/.config/zed-cp/config (simple KEY="value" / KEY=value
+// lines, # comments) once. It is the single source of truth; env still wins.
+var cfgCache map[string]string
+
+func configFile() map[string]string {
+	if cfgCache != nil {
+		return cfgCache
+	}
+	cfgCache = map[string]string{}
+	base := os.Getenv("XDG_CONFIG_HOME")
+	if base == "" {
+		base = filepath.Join(home(), ".config")
+	}
+	f, err := os.ReadFile(filepath.Join(base, "zed-cp", "config"))
+	if err != nil {
+		return cfgCache
+	}
+	for _, line := range strings.Split(string(f), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		k, v, ok := strings.Cut(line, "=")
+		if !ok {
+			continue
+		}
+		v = strings.TrimSpace(v)
+		v = strings.Trim(v, `"'`)
+		cfgCache[strings.TrimSpace(k)] = v
+	}
+	return cfgCache
+}
+
+// env resolves a setting: process env first, then the config file, then default.
 func env(k, def string) string {
 	if v := os.Getenv(k); v != "" {
+		return v
+	}
+	if v, ok := configFile()[k]; ok && v != "" {
 		return v
 	}
 	return def

@@ -17,7 +17,7 @@ warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$*"; }
 OS="$(uname -s)"
 if [ "$OS" = "Darwin" ]; then
   PLIST="$HOME/Library/LaunchAgents/com.zed-cp.listener.plist"
-  launchctl unload "$PLIST" 2>/dev/null || true
+  launchctl bootout "gui/$(id -u)/com.zed-cp.listener" 2>/dev/null || launchctl unload "$PLIST" 2>/dev/null || true
   rm -f "$PLIST"
   say "removed launchd service"
 elif [ "$OS" = "Linux" ]; then
